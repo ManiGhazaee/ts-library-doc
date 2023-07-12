@@ -1,26 +1,30 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { useEffect } from "react";
+import logo from "./logo.svg";
+import { getHtmlContent } from "./ts/getMarkdowns";
+import { useState } from "react";
 
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+    const [htmlContent, setHtmlContent] = useState<string>();
+    useEffect(() => {
+        async function getHtml() {
+            const content = await getHtmlContent();
+            setHtmlContent(content[0].toString());
+        }
+        getHtml();
+    }, []);
+
+    if (!htmlContent) {
+        return <div>Loading...</div>;
+    }
+
+    return (
+        <>
+            <div
+                id="test"
+                dangerouslySetInnerHTML={{ __html: htmlContent }}
+            ></div>
+        </>
+    );
 }
 
 export default App;
