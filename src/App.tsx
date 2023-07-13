@@ -5,7 +5,7 @@ import { useState, useRef } from "react";
 import { MD_FILES } from "./constants/mdFiles";
 import { stringify } from "querystring";
 import { runInThisContext } from "vm";
-import { html } from "./ts/utils";
+import { isVisible } from "./ts/utils";
 
 function App() {
     const [htmlContent, setHtmlContent] = useState<{ [key: string]: string }>();
@@ -14,6 +14,7 @@ function App() {
     }>();
     const [currentDoc, setCurrentDoc] = useState<string>("Array");
     const [onThisPage, setOnThisPage] = useState<{ [key: string]: string[] }>();
+    const [currentSection, setCurrentSection] = useState<string>();
     const docRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -41,6 +42,7 @@ function App() {
 
                     if (firstWord) {
                         e.id = firstWord;
+                        e.classList.add("heading");
 
                         OTPItems.push(firstWord);
                     }
@@ -60,6 +62,29 @@ function App() {
             setOnThisPage(OTP);
         }
         getHtml();
+    }, []);
+
+    const handleScroll = () => {
+        const sections = document.querySelectorAll(
+            ".heading"
+        ) as NodeListOf<HTMLElement>;
+
+        const sectionsArray = Array.from(sections);
+
+        for (let i = 0; i < sectionsArray.length; i++) {
+            if (isVisible(sectionsArray[i])) {
+                setCurrentSection(sectionsArray[i].id);
+                return;
+            }
+        }
+    };
+
+    useEffect(() => {
+        window.addEventListener("scroll", handleScroll);
+
+        return () => {
+            window.removeEventListener("scroll", handleScroll);
+        };
     }, []);
 
     if (htmlContent == undefined || Object.keys(htmlContent).length === 0) {
@@ -85,7 +110,7 @@ function App() {
                 <div>MD_FILES Not Found</div>
             )}
             {Object.keys(htmlContent).length !== 0 ? (
-                <div className="doc-wrapper relative w-[calc(100%-380px)] left-[264px] mt-[64px]">
+                <div className="doc-wrapper relative w-[calc(100%-560px)] left-[264px] mt-[64px]">
                     <div
                         ref={docRef}
                         dangerouslySetInnerHTML={{
@@ -100,7 +125,12 @@ function App() {
                 <div className="fixed top-[64px] right-0 w-[240px] text-[14px] bg-slate-400">
                     <div>OnThisPage</div>
                     {onThisPage?.[currentDoc]?.map((elem) => (
-                        <a className="block" href={"#" + elem}>
+                        <a
+                            className={`block ${
+                                currentSection === elem ? "active" : ""
+                            }`}
+                            href={"#" + elem}
+                        >
                             {elem}
                         </a>
                     ))}

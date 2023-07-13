@@ -7,3 +7,12 @@ export function html(htmlString: string) {
     }
     return fragment;
 }
+
+export function isVisible(elem: HTMLElement) {
+    const rect = elem.getBoundingClientRect();
+    return (
+        rect.top >= 0 &&
+        rect.bottom <=
+            (window.innerHeight || document.documentElement.clientHeight)
+    );
+}

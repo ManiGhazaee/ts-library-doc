@@ -6,4 +6,33 @@
 
 html {
     font-family: "Inter", sans-serif;
+    scroll-behavior: smooth;
+}
+
+.active {
+    font-weight: bold;
+}
+
+.doc-wrapper>div>h3>code {
+    font-weight: bold;
+    font-size: 22px;
+}
+.doc-wrapper>div>h3 {
+    padding-top: 20px;
+    padding-bottom: 20px;
+    border-top: solid 1px black;
+}
+.doc-wrapper>div>h1 {
+    font-size: 30px;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+.doc-wrapper>div>p {
+    margin-bottom: 20px;
+}
+.doc-wrapper>div>pre {
+    padding: 20px;
+    background-color: rgb(221, 221, 221);
+    border-radius: 8px;
+    margin-bottom: 20px;
 }
