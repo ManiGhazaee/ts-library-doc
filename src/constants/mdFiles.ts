@@ -1,11 +1,11 @@
-export const MD_FILES = [
-    "array.md",
-    "array.prototype.md",
-    "darkmode.md",
-    "document.md",
-    "html.md",
-    "htmlelement.prototype.md",
-    "number.md",
-    "object.md",
-    "string.md",
-] as const;
+export const MD_FILES: { [key: string]: string } = {
+    Array: "array.md",
+    Array_prototype: "array.prototype.md",
+    DarkMode: "darkmode.md",
+    Document: "document.md",
+    HTML: "html.md",
+    HTMLElement: "htmlelement.prototype.md",
+    Number: "number.md",
+    Object: "object.md",
+    String: "string.md",
+};

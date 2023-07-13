@@ -19,16 +19,16 @@ function convertMarkdownToHtml(markdownContent: string): string {
 }
 
 export async function getHtmlContent() {
-    let HTML_CONTENTS: string[] = [];
+    let HTML_CONTENTS: { [key: string]: string } = {};
 
-    for (let i = 0; i < MD_FILES.length; i++) {
+    for (let key in MD_FILES) {
         const markdownContent = await fetchMarkdownFileContent(
             "ManiGhazaee",
             "ts-library",
-            `docs/${MD_FILES[i]}`
+            `docs/${MD_FILES[key]}`
         );
         const htmlContent = convertMarkdownToHtml(markdownContent);
-        HTML_CONTENTS.push(htmlContent);
+        HTML_CONTENTS[key] = htmlContent;
     }
 
     return HTML_CONTENTS;
