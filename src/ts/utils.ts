@@ -16,3 +16,26 @@ export function isVisible(elem: HTMLElement) {
             (window.innerHeight || document.documentElement.clientHeight)
     );
 }
+
+export function getNameOfFunction(string: string) {
+    let hasThreeDot: boolean = /(...)/.test(string) ? true : false;
+    if (hasThreeDot) {
+        string = string.split("...")[0];
+    }
+    let hasDot: boolean = /./.test(string) ? true : false;
+    if (hasDot) {
+        let splited = string.split(".");
+        let lastSplitedElem = splited[splited.length - 1];
+        for (let i = 0; i < lastSplitedElem.length; i++) {
+            if (!/^[a-z0-9]+$/i.test(lastSplitedElem[i])) {
+                return lastSplitedElem.slice(0, i);
+            }
+        }
+    } else {
+        for (let i = 0; i < string.length; i++) {
+            if (!/^[a-z0-9]+$/i.test(string[i])) {
+                return string.slice(0, i);
+            }
+        }
+    }
+}

@@ -5,10 +5,11 @@ import { useState, useRef } from "react";
 import { MD_FILES } from "./constants/mdFiles";
 import { stringify } from "querystring";
 import { runInThisContext } from "vm";
-import { isVisible } from "./ts/utils";
+import { getNameOfFunction, isVisible } from "./ts/utils";
 import { DARK_MODE_COLORS, LIGHT_MODE_COLORS } from "./ts/darkmode";
 import DarkmodeButton from "./components/DarkmodeButton";
 import GithubIcon from "./components/GithubIcon";
+import LoadingSpinner from "./components/LoadingSpinner";
 
 function App() {
     const [htmlContent, setHtmlContent] = useState<{ [key: string]: string }>();
@@ -59,7 +60,8 @@ function App() {
 
                 h3s.forEach((e) => {
                     const inner = e.firstElementChild?.innerHTML;
-                    const firstWord = inner?.match(/^\w+/)?.[0];
+                    // const firstWord = inner?.match(/^\w+/)?.[0];
+                    const firstWord = inner ? getNameOfFunction(inner) : "";
 
                     if (firstWord) {
                         e.id = firstWord;
@@ -107,9 +109,9 @@ function App() {
         };
     }, []);
 
-    if (htmlContent == undefined || Object.keys(htmlContent).length === 0) {
-        return <div>Loading...</div>;
-    }
+    // if (htmlContent == undefined || Object.keys(htmlContent).length === 0) {
+    //     return <div>Loading...</div>;
+    // }
 
     const handleOnClick = (event: React.MouseEvent<HTMLDivElement>) => {
         const target = event.target as HTMLDivElement;
@@ -121,8 +123,15 @@ function App() {
             <style>
                 {darkModeState === "on" ? DARK_MODE_COLORS : LIGHT_MODE_COLORS}
             </style>
+            <div className="absolute top-[14px] left-[32px] z-50">
+                <span className="text-primary font-extrabold text-[22px]">TS</span>
+                <span className="text-text font-extrabold text-[22px]"> Library</span>
+            </div>
             <div className="fixed p-[20px] top-0 right-[20px] w-fit h-[20px]">
-                <div onClick={handleDarkModeOnClick} className="inline-block w-fit h-fit mr-[16px]">
+                <div
+                    onClick={handleDarkModeOnClick}
+                    className="inline-block w-fit h-fit mr-[16px]"
+                >
                     <DarkmodeButton
                         state={darkModeState === "on" ? true : false}
                     />
@@ -148,7 +157,8 @@ function App() {
             ) : (
                 <div>MD_FILES Not Found</div>
             )}
-            {Object.keys(htmlContent).length !== 0 ? (
+            {htmlContent !== undefined &&
+            Object.keys(htmlContent).length !== 0 ? (
                 <div className="doc-wrapper relative w-[calc(100%-560px)] left-[264px] mt-[64px]">
                     <div
                         ref={docRef}
@@ -158,7 +168,7 @@ function App() {
                     ></div>
                 </div>
             ) : (
-                <div>MD_FILES Not Found</div>
+                <LoadingSpinner />
             )}
             {onThisPage != undefined && Object.keys(onThisPage).length !== 0 ? (
                 <div className="fixed top-[78px] right-0 w-[240px] text-[14px] font-semibold text-text_2">
@@ -175,7 +185,7 @@ function App() {
                     ))}
                 </div>
             ) : (
-                <div>Error</div>
+                <></>
             )}
         </>
     );
