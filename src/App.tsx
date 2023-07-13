@@ -7,6 +7,8 @@ import { stringify } from "querystring";
 import { runInThisContext } from "vm";
 import { isVisible } from "./ts/utils";
 import { DARK_MODE_COLORS, LIGHT_MODE_COLORS } from "./ts/darkmode";
+import DarkmodeButton from "./components/DarkmodeButton";
+import GithubIcon from "./components/GithubIcon";
 
 function App() {
     const [htmlContent, setHtmlContent] = useState<{ [key: string]: string }>();
@@ -17,8 +19,6 @@ function App() {
     const [onThisPage, setOnThisPage] = useState<{ [key: string]: string[] }>();
     const [currentSection, setCurrentSection] = useState<string>();
     const docRef = useRef<HTMLDivElement>(null);
-
-    const [currentActiveTopic, setCurrentActiveTopic] = useState<string>()
 
     const [darkModeState, setdarkModeState] = useState<string>();
 
@@ -121,10 +121,26 @@ function App() {
             <style>
                 {darkModeState === "on" ? DARK_MODE_COLORS : LIGHT_MODE_COLORS}
             </style>
+            <div className="fixed p-[20px] top-0 right-[20px] w-fit h-[20px]">
+                <div onClick={handleDarkModeOnClick} className="inline-block w-fit h-fit mr-[16px]">
+                    <DarkmodeButton
+                        state={darkModeState === "on" ? true : false}
+                    />
+                </div>
+                <div className="inline-block w-fit h-fit">
+                    <GithubIcon />
+                </div>
+            </div>
             {Object.entries(MD_FILES).length !== 0 ? (
                 <aside className="block fixed left-0 top-0 bottom-0 h-[100%] w-[200px] px-[32px] py-[64px] bg-bg_2 font-semibold text-text_3 text-[14px] overflow-y-auto">
                     {Object.entries(MD_FILES).map((entry) => (
-                        <div className={`mt-[10px] active:text-text ${entry[0] === currentDoc ? "active-topic" : ""} hover:cursor-pointer hover:text-text_2`} id={entry[0]} onClick={handleOnClick}>
+                        <div
+                            className={`mt-[10px] active:text-text ${
+                                entry[0] === currentDoc ? "active-topic" : ""
+                            } hover:cursor-pointer hover:text-text_2`}
+                            id={entry[0]}
+                            onClick={handleOnClick}
+                        >
                             {entry[0]}
                         </div>
                     ))}
