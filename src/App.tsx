@@ -1,15 +1,14 @@
 import React, { useEffect } from "react";
-import logo from "./logo.svg";
 import { getHtmlContent } from "./ts/getMarkdowns";
 import { useState, useRef } from "react";
 import { MD_FILES } from "./constants/mdFiles";
-import { stringify } from "querystring";
-import { runInThisContext } from "vm";
 import { getNameOfFunction, isVisible } from "./ts/utils";
 import { DARK_MODE_COLORS, LIGHT_MODE_COLORS } from "./ts/darkmode";
 import DarkmodeButton from "./components/DarkmodeButton";
 import GithubIcon from "./components/GithubIcon";
 import LoadingSpinner from "./components/LoadingSpinner";
+import "highlight.js/styles/tokyo-night-dark.css";
+import hljs from "highlight.js";
 
 function App() {
     const [htmlContent, setHtmlContent] = useState<{ [key: string]: string }>();
@@ -60,7 +59,6 @@ function App() {
 
                 h3s.forEach((e) => {
                     const inner = e.firstElementChild?.innerHTML;
-                    // const firstWord = inner?.match(/^\w+/)?.[0];
                     const firstWord = inner ? getNameOfFunction(inner) : "";
 
                     if (firstWord) {
@@ -86,6 +84,12 @@ function App() {
         getHtml();
     }, []);
 
+    const hl = () => {
+        hljs.highlightAll();
+    };
+
+    useEffect(hl, [docRef.current?.innerHTML, currentDoc]);
+
     const handleScroll = () => {
         const sections = document.querySelectorAll(
             ".heading"
@@ -109,10 +113,6 @@ function App() {
         };
     }, []);
 
-    // if (htmlContent == undefined || Object.keys(htmlContent).length === 0) {
-    //     return <div>Loading...</div>;
-    // }
-
     const handleOnClick = (event: React.MouseEvent<HTMLDivElement>) => {
         const target = event.target as HTMLDivElement;
         setCurrentDoc(target.id);
@@ -123,9 +123,14 @@ function App() {
             <style>
                 {darkModeState === "on" ? DARK_MODE_COLORS : LIGHT_MODE_COLORS}
             </style>
-            <div className="absolute top-[14px] left-[32px] z-50">
-                <span className="text-primary font-extrabold text-[22px]">TS</span>
-                <span className="text-text font-extrabold text-[22px]"> Library</span>
+            <div className="fixed top-[14px] left-[32px] z-50">
+                <span className="text-primary font-extrabold text-[22px]">
+                    TS
+                </span>
+                <span className="text-text font-extrabold text-[22px]">
+                    {" "}
+                    Library
+                </span>
             </div>
             <div className="fixed p-[20px] top-0 right-[20px] w-fit h-[20px]">
                 <div
@@ -161,6 +166,7 @@ function App() {
             Object.keys(htmlContent).length !== 0 ? (
                 <div className="doc-wrapper relative w-[calc(100%-560px)] left-[264px] mt-[64px]">
                     <div
+                        onLoad={hl}
                         ref={docRef}
                         dangerouslySetInnerHTML={{
                             __html: htmlContent[currentDoc],

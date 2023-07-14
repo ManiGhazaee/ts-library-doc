@@ -32,10 +32,4 @@ export async function getHtmlContent() {
     }
 
     return HTML_CONTENTS;
-
-    // write HTML content to a file
-    // fs.writeFileSync('path/to/output.html', htmlContent);
-
-    // or send HTML content to your other site using HTTP request
-    // ...
 }
