@@ -9,6 +9,7 @@ import GithubIcon from "./components/GithubIcon";
 import LoadingSpinner from "./components/LoadingSpinner";
 import "highlight.js/styles/tokyo-night-dark.css";
 import hljs from "highlight.js";
+import Logo from "./components/Logo";
 
 function App() {
     const [htmlContent, setHtmlContent] = useState<{ [key: string]: string }>();
@@ -116,6 +117,9 @@ function App() {
     const handleOnClick = (event: React.MouseEvent<HTMLDivElement>) => {
         const target = event.target as HTMLDivElement;
         setCurrentDoc(target.id);
+        window.scrollTo(0, 0);
+        setCurrentSection("");
+        document.title = `${target.id} | TS Library`
     };
 
     return (
@@ -123,16 +127,9 @@ function App() {
             <style>
                 {darkModeState === "on" ? DARK_MODE_COLORS : LIGHT_MODE_COLORS}
             </style>
-            <div className="fixed top-[14px] left-[32px] z-50">
-                <span className="text-primary font-extrabold text-[22px]">
-                    TS
-                </span>
-                <span className="text-text font-extrabold text-[22px]">
-                    {" "}
-                    Library
-                </span>
-            </div>
-            <div className="fixed p-[20px] top-0 right-[20px] w-fit h-[20px]">
+            <Logo />
+            <div className="top-bg"></div>
+            <div className="fixed p-[20px] top-0 right-[20px] w-fit h-[20px] z-20">
                 <div
                     onClick={handleDarkModeOnClick}
                     className="inline-block w-fit h-fit mr-[16px]"
@@ -146,10 +143,10 @@ function App() {
                 </div>
             </div>
             {Object.entries(MD_FILES).length !== 0 ? (
-                <aside className="block fixed left-0 top-0 bottom-0 h-[100%] w-[200px] px-[32px] py-[64px] bg-bg_2 font-semibold text-text_3 text-[14px] overflow-y-auto">
+                <aside className="block fixed left-0 top-0 bottom-0 h-[100%] w-[200px] px-[32px] py-[64px] bg-bg_2 font-semibold text-text_3 text-[14px] overflow-y-autoi z-20">
                     {Object.entries(MD_FILES).map((entry) => (
                         <div
-                            className={`mt-[10px] active:text-text ${
+                            className={`mt-[10px] active:text-primary ${
                                 entry[0] === currentDoc ? "active-topic" : ""
                             } hover:cursor-pointer hover:text-text_2`}
                             id={entry[0]}
@@ -180,14 +177,25 @@ function App() {
                 <div className="fixed top-[78px] right-0 w-[240px] text-[14px] font-semibold text-text_2">
                     <div className="mb-[20px] font-bold">On this page</div>
                     {onThisPage?.[currentDoc]?.map((elem) => (
-                        <a
+                        <div
                             className={`block ${
                                 currentSection === elem ? "active-section" : ""
-                            } mb-[10px] text-text_3`}
-                            href={"#" + elem}
+                            } mb-[10px] text-text_3 cursor-pointer`}
+                            // href={"#" + elem}
+                            onClick={() => {
+                                window.scrollTo({
+                                    top:
+                                        (
+                                            document.querySelector(
+                                                `#${elem}`
+                                            ) as HTMLElement
+                                        ).offsetTop + 16,
+                                    behavior: "smooth",
+                                });
+                            }}
                         >
                             {elem}
-                        </a>
+                        </div>
                     ))}
                 </div>
             ) : (
