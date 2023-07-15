@@ -89,7 +89,7 @@ function App() {
         hljs.highlightAll();
     };
 
-    useEffect(hl, [docRef.current?.innerHTML, currentDoc]);
+    useEffect(hl, [docRef.current?.innerHTML, currentDoc, docRef, htmlContent]);
 
     const handleScroll = () => {
         const sections = document.querySelectorAll(
