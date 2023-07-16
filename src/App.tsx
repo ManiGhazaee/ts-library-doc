@@ -71,6 +71,11 @@ function App() {
                 });
 
                 OTP[key] = OTPItems;
+
+                const aTags = div.querySelectorAll("a");
+                aTags.forEach((e) => {
+                    e.setAttribute("target", "_blank");
+                });
             }
 
             let contentObject: { [key: string]: string } = {};
@@ -119,7 +124,7 @@ function App() {
         setCurrentDoc(target.id);
         window.scrollTo(0, 0);
         setCurrentSection("");
-        document.title = `${target.id} | TS Library`
+        document.title = `${target.id} | TS Library`;
     };
 
     return (
