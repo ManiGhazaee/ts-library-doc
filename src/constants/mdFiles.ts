@@ -2,6 +2,7 @@ export const MD_FILES: { [key: string]: string } = {
     Array: "array.md",
     "Array.prototype": "array.prototype.md",
     DarkMode: "darkmode.md",
+    Color: "color.md",
     Document: "document.md",
     HTML: "html.md",
     HTMLElement: "htmlelement.prototype.md",
