@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { getHtmlContent } from "./ts/getMarkdowns";
 import { useState, useRef } from "react";
-import { MD_FILES } from "./constants/mdFiles";
+import { FILES } from "./constants/fileNames";
 import { getNameOfFunction, isVisible } from "./ts/utils";
 import { DARK_MODE_COLORS, LIGHT_MODE_COLORS } from "./ts/darkmode";
 import DarkmodeButton from "./components/DarkmodeButton";
@@ -10,6 +10,9 @@ import LoadingSpinner from "./components/LoadingSpinner";
 import "highlight.js/styles/tokyo-night-dark.css";
 import hljs from "highlight.js";
 import Logo from "./components/Logo";
+import { getSourceContent } from "./ts/getSources";
+import { extractFunctionsAndMethods } from "./ts/parseFunctions";
+import { getNextElementBy } from "./ts/getNextElementBy";
 
 function App() {
     const [htmlContent, setHtmlContent] = useState<{ [key: string]: string }>();
@@ -20,6 +23,11 @@ function App() {
     const [onThisPage, setOnThisPage] = useState<{ [key: string]: string[] }>();
     const [currentSection, setCurrentSection] = useState<string>();
     const docRef = useRef<HTMLDivElement>(null);
+
+    const [sourceFiles, setSourceFiles] =
+        useState<Record<string, Record<string, string>>>();
+
+    const [loaded, setLoaded] = useState(false);
 
     const [darkModeState, setdarkModeState] = useState<string>();
 
@@ -42,7 +50,10 @@ function App() {
     useEffect(() => {
         let contentInHtml: { [key: string]: HTMLDivElement } = {};
         async function getHtml() {
-            const content = await getHtmlContent();
+            const [content, sourceContent] = await Promise.all([
+                getHtmlContent(),
+                getSourceContent(),
+            ]);
 
             for (const key in content) {
                 let tempNode = document.createElement("div");
@@ -78,6 +89,72 @@ function App() {
                 });
             }
 
+            // let contentObject: { [key: string]: string } = {};
+            // for (const key in contentInHtml) {
+            //     contentObject[key] = contentInHtml[key].innerHTML;
+            // }
+
+            // setHtmlContent(contentObject);
+            // setHtmlContentInHtml(contentInHtml);
+            setOnThisPage(OTP);
+
+            // -------
+
+            const sourceContentSeperated: {
+                [key: string]: { [key: string]: string };
+            } = {};
+            for (const key in sourceContent) {
+                sourceContentSeperated[key] = extractFunctionsAndMethods(
+                    sourceContent[key]
+                );
+            }
+
+            console.log(sourceContentSeperated);
+            setSourceFiles(sourceContentSeperated);
+
+            for (const key in contentInHtml) {
+                const div = contentInHtml[key];
+                const h3s = Array.from(div.querySelectorAll("h3"));
+
+                for (let i = 0; i < h3s.length; i++) {
+                    if (h3s[i].id in sourceContentSeperated[key]) {
+                        const preCont = document.createElement("div");
+                        const button = document.createElement("button");
+                        button.classList.add("view-code-button");
+                        button.textContent = "View source";
+                        button.setAttribute(
+                            "onclick",
+                            `(function onClick(elem) {
+                            const nextElem = elem.nextElementSibling;
+                            if (nextElem.classList.contains("src-hidden")) {
+                                nextElem.classList.remove("src-hidden");
+                                nextElem.classList.add("src-visible");
+                            } else {
+                                nextElem.classList.remove("src-visible");
+                                nextElem.classList.add("src-hidden");
+                            }
+                        })(this)`
+                        );
+                        const pre = document.createElement("pre");
+                        pre.classList.add("src-hidden");
+                        const code = document.createElement("code");
+                        code.classList.add("language-typescript");
+                        code.textContent =
+                            sourceContentSeperated[key][h3s[i].id];
+                        pre.appendChild(code);
+
+                        preCont.append(button, pre);
+
+                        const nextH1 = getNextElementBy(h3s[i], "tag", "h1");
+
+                        if (nextH1?.parentElement != undefined) {
+                            const parent = nextH1?.parentElement;
+                            parent.insertBefore(preCont, nextH1);
+                        }
+                    }
+                }
+            }
+
             let contentObject: { [key: string]: string } = {};
             for (const key in contentInHtml) {
                 contentObject[key] = contentInHtml[key].innerHTML;
@@ -85,16 +162,25 @@ function App() {
 
             setHtmlContent(contentObject);
             setHtmlContentInHtml(contentInHtml);
-            setOnThisPage(OTP);
         }
         getHtml();
     }, []);
 
-    const hl = () => {
+    useEffect(() => {
+        if (!loaded) return;
+    }, [loaded]);
+
+    const onLoad = () => {
         hljs.highlightAll();
+        setLoaded(() => true);
     };
 
-    useEffect(hl, [docRef.current?.innerHTML, currentDoc, docRef, htmlContent]);
+    useEffect(onLoad, [
+        docRef.current?.innerHTML,
+        currentDoc,
+        docRef,
+        htmlContent,
+    ]);
 
     const handleScroll = () => {
         const sections = document.querySelectorAll(
@@ -147,9 +233,9 @@ function App() {
                     <GithubIcon />
                 </div>
             </div>
-            {Object.entries(MD_FILES).length !== 0 ? (
+            {Object.entries(FILES).length !== 0 ? (
                 <aside className="block fixed left-0 top-0 bottom-0 h-[100%] w-[200px] px-[32px] py-[64px] bg-bg_2 font-semibold text-text_3 text-[14px] overflow-y-autoi z-20">
-                    {Object.entries(MD_FILES).map((entry) => (
+                    {Object.entries(FILES).map((entry) => (
                         <div
                             className={`mt-[10px] active:text-primary ${
                                 entry[0] === currentDoc ? "active-topic" : ""
@@ -168,7 +254,7 @@ function App() {
             Object.keys(htmlContent).length !== 0 ? (
                 <div className="doc-wrapper relative w-[calc(100%-560px)] left-[264px] mt-[64px]">
                     <div
-                        onLoad={hl}
+                        onLoad={onLoad}
                         ref={docRef}
                         dangerouslySetInnerHTML={{
                             __html: htmlContent[currentDoc],

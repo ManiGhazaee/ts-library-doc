@@ -1,5 +1,5 @@
 import MarkdownIt from "markdown-it";
-import { MD_FILES } from "../constants/mdFiles";
+import { FILES } from "../constants/fileNames";
 
 async function fetchMarkdownFileContent(
     username: string,
@@ -9,6 +9,7 @@ async function fetchMarkdownFileContent(
     const url = `https://api.github.com/repos/${username}/${repo}/contents/${path}`;
     const response = await fetch(url);
     const data = await response.json();
+    console.log(response);
     const content = atob(data.content);
     return content;
 }
@@ -21,11 +22,11 @@ function convertMarkdownToHtml(markdownContent: string): string {
 export async function getHtmlContent() {
     let HTML_CONTENTS: { [key: string]: string } = {};
 
-    for (let key in MD_FILES) {
+    for (let key in FILES) {
         const markdownContent = await fetchMarkdownFileContent(
             "ManiGhazaee",
             "ts-library",
-            `docs/${MD_FILES[key]}`
+            `docs/${FILES[key][0]}`
         );
         const htmlContent = convertMarkdownToHtml(markdownContent);
         HTML_CONTENTS[key] = htmlContent;
