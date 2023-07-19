@@ -6,12 +6,24 @@ async function fetchMarkdownFileContent(
     repo: string,
     path: string
 ): Promise<string> {
-    const url = `https://api.github.com/repos/${username}/${repo}/contents/${path}`;
-    const response = await fetch(url);
-    const data = await response.json();
-    console.log(response);
-    const content = atob(data.content);
-    return content;
+    return new Promise<string>(async (resolve, reject) => {
+        try {
+            const url = `https://api.github.com/repos/${username}/${repo}/contents/${path}`;
+            const response = await fetch(url);
+
+            if (!response.ok) {
+                throw new Error(
+                    `Failed to fetch content from ${url}: ${response.status} - ${response.statusText}`
+                );
+            }
+
+            const data = await response.json();
+            const content = atob(data.content);
+            resolve(content);
+        } catch (error) {
+            reject(error);
+        }
+    });
 }
 
 function convertMarkdownToHtml(markdownContent: string): string {
@@ -21,16 +33,26 @@ function convertMarkdownToHtml(markdownContent: string): string {
 
 export async function getHtmlContent() {
     let HTML_CONTENTS: { [key: string]: string } = {};
+    let promises: Promise<void>[] = [];
 
     for (let key in FILES) {
-        const markdownContent = await fetchMarkdownFileContent(
-            "ManiGhazaee",
-            "ts-library",
-            `docs/${FILES[key][0]}`
+        promises.push(
+            fetchMarkdownFileContent(
+                "ManiGhazaee",
+                "ts-library",
+                `docs/${FILES[key][0]}`
+            )
+                .then((markdownContent) => {
+                    const htmlContent = convertMarkdownToHtml(markdownContent);
+                    HTML_CONTENTS[key] = htmlContent;
+                })
+                .catch((error) => {
+                    console.error(error);
+                })
         );
-        const htmlContent = convertMarkdownToHtml(markdownContent);
-        HTML_CONTENTS[key] = htmlContent;
     }
+
+    await Promise.all(promises);
 
     return HTML_CONTENTS;
 }
