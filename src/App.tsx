@@ -13,6 +13,7 @@ import Logo from "./components/Logo";
 import { getSourceContent } from "./ts/getSources";
 import { extractFunctionsAndMethods } from "./ts/parseFunctions";
 import { getNextElementBy } from "./ts/getNextElementBy";
+import { onClickFunction } from "./ts/viewSource";
 
 function App() {
     const [htmlContent, setHtmlContent] = useState<{ [key: string]: string }>();
@@ -122,21 +123,11 @@ function App() {
                         const button = document.createElement("button");
                         button.classList.add("view-code-button");
                         button.textContent = "View source";
-                        button.setAttribute(
-                            "onclick",
-                            `(function onClick(elem) {
-                            const nextElem = elem.nextElementSibling;
-                            if (nextElem.classList.contains("src-hidden")) {
-                                nextElem.classList.remove("src-hidden");
-                                nextElem.classList.add("src-visible");
-                            } else {
-                                nextElem.classList.remove("src-visible");
-                                nextElem.classList.add("src-hidden");
-                            }
-                        })(this)`
-                        );
+                        button.setAttribute("onclick", onClickFunction);
+
                         const pre = document.createElement("pre");
                         pre.classList.add("src-hidden");
+
                         const code = document.createElement("code");
                         code.classList.add("language-typescript");
                         code.textContent =
@@ -213,6 +204,17 @@ function App() {
         document.title = `${target.id} | TS Library`;
     };
 
+    useEffect(() => {
+        let otpElem = document.getElementById("on-this-page");
+        let activeSec = document.querySelector(
+            ".active-section"
+        ) as HTMLElement;
+        otpElem?.scrollTo({
+            top: activeSec?.offsetTop - 50,
+            behavior: "smooth",
+        });
+    }, [currentSection]);
+
     return (
         <>
             <style>
@@ -265,7 +267,10 @@ function App() {
                 <LoadingSpinner />
             )}
             {onThisPage != undefined && Object.keys(onThisPage).length !== 0 ? (
-                <div className="fixed top-[78px] right-0 w-[240px] text-[14px] font-semibold text-text_2">
+                <div
+                    id="on-this-page"
+                    className="fixed top-[78px] right-0 w-[240px] text-[14px] font-semibold text-text_2 overflow-auto h-[calc(100vh-78px)]"
+                >
                     <div className="mb-[20px] font-bold">On this page</div>
                     {onThisPage?.[currentDoc]?.map((elem) => (
                         <div
