@@ -90,13 +90,6 @@ function App() {
                 });
             }
 
-            // let contentObject: { [key: string]: string } = {};
-            // for (const key in contentInHtml) {
-            //     contentObject[key] = contentInHtml[key].innerHTML;
-            // }
-
-            // setHtmlContent(contentObject);
-            // setHtmlContentInHtml(contentInHtml);
             setOnThisPage(OTP);
 
             // -------
@@ -282,8 +275,8 @@ function App() {
                                 window.scrollTo({
                                     top:
                                         (
-                                            document.querySelector(
-                                                `#${elem}`
+                                            document.getElementById(
+                                                `${elem}`
                                             ) as HTMLElement
                                         ).offsetTop + 16,
                                     behavior: "smooth",
